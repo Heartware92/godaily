@@ -24,6 +24,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 역할: 테스트, 버그 검증, 모바일 호환성 확인
 - 범위: 기능 테스트, 빌드 검증, 접근성 체크
 
+## Database (데이터베이스)
+- 역할: Supabase DB 스키마 관리, 마이그레이션, 쿼리 최적화
+- 범위: 테이블 설계, RLS 정책, 인덱스, SQL 실행
+- 도구: `supabase db query --linked` 로 직접 실행
+- 규칙: RLS 필수, 모든 변경사항은 supabase/schema.sql에 기록
+
 ## Deploy (배포)
 - 역할: Vercel 배포, 환경변수 관리
 - 범위: 빌드 설정, 배포 자동화, 도메인 설정
+- 도구: `vercel` CLI (linked to heartwares-projects/godaily)
