@@ -199,23 +199,10 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
                 <p className="line-clamp-3 text-[15px] leading-7 text-foreground">
                   {diary.content || "(내용 없음)"}
                 </p>
-                {diary.reflections?.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {diary.reflections.slice(0, 3).map((r, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-xs text-muted"
-                      >
-                        <span className="font-bold text-primary">{i + 1}</span>
-                        <span className="max-w-[120px] truncate">{r}</span>
-                      </span>
-                    ))}
-                    {diary.reflections.length > 3 && (
-                      <span className="inline-flex items-center rounded-full bg-background px-2.5 py-1 text-xs text-muted">
-                        +{diary.reflections.length - 3}
-                      </span>
-                    )}
-                  </div>
+                {diary.reflections?.length > 0 && diary.reflections.some((r) => r.trim()) && (
+                  <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted">
+                    {diary.reflections.join("\n")}
+                  </p>
                 )}
                 <p className="mt-3 text-xs text-muted">
                   {format(new Date(diary.created_at), "a h:mm", { locale: ko })}

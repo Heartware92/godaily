@@ -61,7 +61,7 @@ export default async function DiaryDetailPage({
             </div>
           </section>
 
-          {diary.reflections?.length > 0 && (
+          {diary.reflections?.length > 0 && diary.reflections.some((r: string) => r.trim()) && (
             <>
               <div className="mb-6 flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
@@ -69,20 +69,12 @@ export default async function DiaryDetailPage({
                 <div className="h-px flex-1 bg-border" />
               </div>
 
-              <section className="space-y-3">
-                {diary.reflections.map((reflection: string, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-start gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-background">
-                      {index + 1}
-                    </span>
-                    <p className="text-[15px] leading-7 text-foreground">
-                      {reflection}
-                    </p>
-                  </div>
-                ))}
+              <section>
+                <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
+                    {diary.reflections.join("\n")}
+                  </p>
+                </div>
               </section>
             </>
           )}

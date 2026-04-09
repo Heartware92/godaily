@@ -19,33 +19,20 @@ interface DiaryFormProps {
 export default function DiaryForm({ diary, date }: DiaryFormProps) {
   const router = useRouter();
   const [content, setContent] = useState(diary?.content ?? "");
-  const [reflections, setReflections] = useState<string[]>(
-    diary?.reflections?.length ? diary.reflections : [""]
+  const [reflection, setReflection] = useState(
+    diary?.reflections?.join("\n") ?? ""
   );
   const [saving, setSaving] = useState(false);
 
-  const addReflection = () => setReflections([...reflections, ""]);
-
-  const updateReflection = (index: number, value: string) => {
-    const updated = [...reflections];
-    updated[index] = value;
-    setReflections(updated);
-  };
-
-  const removeReflection = (index: number) => {
-    if (reflections.length <= 1) return;
-    setReflections(reflections.filter((_, i) => i !== index));
-  };
-
   const handleSave = async () => {
-    if (!content.trim() && reflections.every((r) => !r.trim())) return;
+    if (!content.trim() && !reflection.trim()) return;
     setSaving(true);
     try {
-      const filtered = reflections.filter((r) => r.trim());
+      const reflections = reflection.trim() ? [reflection.trim()] : [];
       if (diary) {
-        await updateDiary(diary.id, content, filtered);
+        await updateDiary(diary.id, content, reflections);
       } else {
-        await createDiary(content, filtered, date);
+        await createDiary(content, reflections, date);
       }
       router.push("/");
     } catch (e) {
@@ -111,46 +98,15 @@ export default function DiaryForm({ diary, date }: DiaryFormProps) {
           </div>
 
           {/* 느낀점 */}
-          <section className="space-y-3">
-            {reflections.map((reflection, index) => (
-              <div
-                key={index}
-                className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
-              >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-background">
-                  {index + 1}
-                </span>
-                <textarea
-                  value={reflection}
-                  onChange={(e) => updateReflection(index, e.target.value)}
-                  placeholder="느낀점을 정리하세요..."
-                  rows={2}
-                  className="flex-1 bg-transparent text-[15px] leading-7 text-foreground placeholder:text-muted/60"
-                />
-                {reflections.length > 1 && (
-                  <button
-                    onClick={() => removeReflection(index)}
-                    className="shrink-0 pt-0.5 text-muted opacity-0 transition-opacity group-hover:opacity-100 active:opacity-100"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            ))}
-
-            <button
-              onClick={addReflection}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm text-muted transition-colors active:bg-card"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              느낀점 추가
-            </button>
+          <section>
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <textarea
+                value={reflection}
+                onChange={(e) => setReflection(e.target.value)}
+                placeholder="느낀점을 자유롭게 정리하세요..."
+                className="w-full min-h-[120px] bg-transparent text-[15px] leading-7 text-foreground placeholder:text-muted/60"
+              />
+            </div>
           </section>
         </main>
 
