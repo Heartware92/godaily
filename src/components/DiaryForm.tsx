@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
 import { createDiary, updateDiary } from "@/lib/actions";
 
 interface DiaryFormProps {
@@ -11,9 +13,10 @@ interface DiaryFormProps {
     reflections: string[];
     created_at: string;
   };
+  date?: string;
 }
 
-export default function DiaryForm({ diary }: DiaryFormProps) {
+export default function DiaryForm({ diary, date }: DiaryFormProps) {
   const router = useRouter();
   const [content, setContent] = useState(diary?.content ?? "");
   const [reflections, setReflections] = useState<string[]>(
@@ -42,7 +45,7 @@ export default function DiaryForm({ diary }: DiaryFormProps) {
       if (diary) {
         await updateDiary(diary.id, content, filtered);
       } else {
-        await createDiary(content, filtered);
+        await createDiary(content, filtered, date);
       }
       router.push("/");
     } catch (e) {
@@ -65,9 +68,18 @@ export default function DiaryForm({ diary }: DiaryFormProps) {
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <h1 className="text-lg font-semibold text-foreground">
-            {diary ? "수정하기" : "새 일기"}
-          </h1>
+          <div className="text-center">
+            <h1 className="text-lg font-semibold text-foreground">
+              {diary ? "수정하기" : "새 일기"}
+            </h1>
+            {date && !diary && (
+              <p className="text-xs text-muted">
+                {format(new Date(date + "T12:00:00"), "M월 d일 EEEE", {
+                  locale: ko,
+                })}
+              </p>
+            )}
+          </div>
           <div className="w-10" />
         </header>
 

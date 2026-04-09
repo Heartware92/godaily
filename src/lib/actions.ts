@@ -3,12 +3,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function createDiary(content: string, reflections: string[]) {
+export async function createDiary(
+  content: string,
+  reflections: string[],
+  date?: string
+) {
   const supabase = await createClient();
-  const { error } = await supabase.from("diaries").insert({
-    content,
-    reflections,
-  });
+  const insertData: Record<string, unknown> = { content, reflections };
+  if (date) {
+    insertData.created_at = new Date(date + "T12:00:00").toISOString();
+  }
+  const { error } = await supabase.from("diaries").insert(insertData);
   if (error) throw new Error(error.message);
   revalidatePath("/");
 }
