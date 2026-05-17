@@ -1,0 +1,212 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
+import { searchDiaries, type SearchMatch } from "@/lib/actions";
+
+function escapeRegex(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function Highlight({ text, terms }: { text: string; terms: string[] }) {
+  const parts = useMemo(() => {
+    if (!text || terms.length === 0) return [{ t: text, hit: false }];
+    const pattern = terms.map(escapeRegex).join("|");
+    const regex = new RegExp(`(${pattern})`, "gi");
+    const split = text.split(regex);
+    return split.map((t, i) => ({ t, hit: i % 2 === 1 }));
+  }, [text, terms]);
+
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.hit ? (
+          <mark
+            key={i}
+            className="rounded bg-primary/25 px-0.5 text-foreground"
+          >
+            {p.t}
+          </mark>
+        ) : (
+          <span key={i}>{p.t}</span>
+        )
+      )}
+    </>
+  );
+}
+
+export default function SearchClient() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchMatch[]>([]);
+  const [isPending, startTransition] = useTransition();
+  const [searched, setSearched] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setResults([]);
+      setSearched(false);
+      return;
+    }
+    const handle = setTimeout(() => {
+      startTransition(async () => {
+        const data = await searchDiaries(q);
+        setResults(data);
+        setSearched(true);
+      });
+    }, 200);
+    return () => clearTimeout(handle);
+  }, [query]);
+
+  return (
+    <div className="flex h-full flex-col items-center bg-background">
+      <div className="flex w-full max-w-[430px] flex-1 flex-col">
+        {/* 헤더 */}
+        <header className="flex items-center gap-2 px-5 pt-12 pb-4">
+          <button
+            onClick={() => router.back()}
+            aria-label="뒤로"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-foreground"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div className="relative flex-1">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" />
+            </svg>
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="일기 검색 (단어를 띄어쓰면 AND)"
+              className="h-10 w-full rounded-full border border-border bg-card pl-9 pr-9 text-sm text-foreground placeholder:text-muted/60 focus:border-primary focus:outline-none"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                aria-label="지우기"
+                className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted active:bg-background"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </header>
+
+        {/* 결과 */}
+        <main className="flex-1 overflow-y-auto px-5 pb-8 hide-scrollbar">
+          {!query.trim() && (
+            <p className="mt-10 text-center text-sm text-muted">
+              본문과 느낀점에서 검색해요
+            </p>
+          )}
+
+          {query.trim() && searched && !isPending && results.length === 0 && (
+            <p className="mt-10 text-center text-sm text-muted">
+              검색 결과가 없어요
+            </p>
+          )}
+
+          {results.length > 0 && (
+            <>
+              <p className="mb-3 text-xs text-muted">
+                {isPending ? "검색 중…" : `${results.length}건`}
+              </p>
+              <div className="space-y-3">
+                {results.map((r) => (
+                  <Link
+                    key={r.diary.id}
+                    href={`/diary/${r.diary.id}`}
+                    className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <p className="text-xs text-muted">
+                        {format(
+                          new Date(r.diary.created_at),
+                          "yyyy년 M월 d일 EEEE",
+                          { locale: ko }
+                        )}
+                      </p>
+                    </div>
+
+                    {r.contentMatched && r.contentSnippet && (
+                      <div className="mb-2">
+                        <span className="mr-2 inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                          본문
+                        </span>
+                        <span className="text-[14px] leading-6 text-foreground">
+                          <Highlight
+                            text={r.contentSnippet}
+                            terms={r.terms}
+                          />
+                        </span>
+                      </div>
+                    )}
+
+                    {r.reflectionMatched && r.reflectionSnippet && (
+                      <div>
+                        <span className="mr-2 inline-block rounded-full bg-blue-400/15 px-2 py-0.5 text-[10px] font-semibold text-blue-400">
+                          느낀점
+                        </span>
+                        <span className="text-[14px] leading-6 text-foreground">
+                          <Highlight
+                            text={r.reflectionSnippet}
+                            terms={r.terms}
+                          />
+                        </span>
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
