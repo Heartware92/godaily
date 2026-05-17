@@ -2,14 +2,18 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import type { DiaryBlock } from "@/types/diary";
 
 export async function createDiary(
   content: string,
   reflections: string[],
-  date?: string
+  date?: string,
+  blocks?: DiaryBlock[]
 ) {
   const supabase = await createClient();
-  const insertData: Record<string, unknown> = { content, reflections };
+  const insertData: Record<string, unknown> = blocks
+    ? { content: "", reflections: [], blocks }
+    : { content, reflections };
   if (date) {
     insertData.created_at = new Date(date + "T12:00:00").toISOString();
   }
@@ -21,12 +25,16 @@ export async function createDiary(
 export async function updateDiary(
   id: string,
   content: string,
-  reflections: string[]
+  reflections: string[],
+  blocks?: DiaryBlock[]
 ) {
   const supabase = await createClient();
+  const updateData: Record<string, unknown> = blocks
+    ? { content: "", reflections: [], blocks }
+    : { content, reflections };
   const { error } = await supabase
     .from("diaries")
-    .update({ content, reflections })
+    .update(updateData)
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -61,17 +69,18 @@ export async function getDiary(id: string) {
   return data;
 }
 
+export interface SearchHit {
+  field: "content" | "reflection";
+  index: number | null;
+  snippet: string;
+}
+
 export interface SearchMatch {
   diary: {
     id: string;
-    content: string;
-    reflections: string[];
     created_at: string;
   };
-  contentMatched: boolean;
-  reflectionMatched: boolean;
-  contentSnippet: string | null;
-  reflectionSnippet: string | null;
+  hits: SearchHit[];
   terms: string[];
 }
 
@@ -99,9 +108,7 @@ function makeSnippet(
 
 function matchesAll(text: string, terms: string[]): boolean {
   if (!text) return false;
-  return terms.every((t) =>
-    new RegExp(escapeRegex(t), "i").test(text)
-  );
+  return terms.every((t) => new RegExp(escapeRegex(t), "i").test(text));
 }
 
 export async function searchDiaries(query: string): Promise<SearchMatch[]> {
@@ -113,36 +120,54 @@ export async function searchDiaries(query: string): Promise<SearchMatch[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("diaries")
-    .select("id, content, reflections, created_at")
+    .select("id, content, reflections, blocks, created_at")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
 
   const results: SearchMatch[] = [];
   for (const row of data ?? []) {
-    const content: string = row.content ?? "";
-    const reflections: string[] = Array.isArray(row.reflections)
-      ? row.reflections.filter((r): r is string => typeof r === "string")
-      : [];
-    const reflectionsText = reflections.join("\n");
+    const hits: SearchHit[] = [];
 
-    const contentMatched = matchesAll(content, terms);
-    const reflectionMatched = matchesAll(reflectionsText, terms);
+    const blocks: DiaryBlock[] | null = Array.isArray(row.blocks)
+      ? (row.blocks as DiaryBlock[])
+      : null;
 
-    if (!contentMatched && !reflectionMatched) continue;
+    if (blocks && blocks.length > 0) {
+      blocks.forEach((b, i) => {
+        const c = typeof b?.content === "string" ? b.content : "";
+        const r = typeof b?.reflection === "string" ? b.reflection : "";
+        if (matchesAll(c, terms)) {
+          const snip = makeSnippet(c, terms);
+          if (snip) hits.push({ field: "content", index: i, snippet: snip });
+        }
+        if (matchesAll(r, terms)) {
+          const snip = makeSnippet(r, terms);
+          if (snip) hits.push({ field: "reflection", index: i, snippet: snip });
+        }
+      });
+    } else {
+      const content: string = row.content ?? "";
+      const reflections: string[] = Array.isArray(row.reflections)
+        ? row.reflections.filter((r): r is string => typeof r === "string")
+        : [];
+      const reflectionsText = reflections.join("\n");
+
+      if (matchesAll(content, terms)) {
+        const snip = makeSnippet(content, terms);
+        if (snip) hits.push({ field: "content", index: null, snippet: snip });
+      }
+      if (matchesAll(reflectionsText, terms)) {
+        const snip = makeSnippet(reflectionsText, terms);
+        if (snip)
+          hits.push({ field: "reflection", index: null, snippet: snip });
+      }
+    }
+
+    if (hits.length === 0) continue;
 
     results.push({
-      diary: {
-        id: row.id,
-        content,
-        reflections,
-        created_at: row.created_at,
-      },
-      contentMatched,
-      reflectionMatched,
-      contentSnippet: contentMatched ? makeSnippet(content, terms) : null,
-      reflectionSnippet: reflectionMatched
-        ? makeSnippet(reflectionsText, terms)
-        : null,
+      diary: { id: row.id, created_at: row.created_at },
+      hits,
       terms,
     });
   }

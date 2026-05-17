@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { getDiary } from "@/lib/actions";
 import DeleteButton from "@/components/DeleteButton";
+import type { DiaryBlock } from "@/types/diary";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,11 @@ export default async function DiaryDetailPage({
 }) {
   const { id } = await params;
   const diary = await getDiary(id);
+
+  const blocks: DiaryBlock[] | null =
+    Array.isArray(diary.blocks) && diary.blocks.length > 0
+      ? (diary.blocks as DiaryBlock[])
+      : null;
 
   return (
     <div className="flex h-full flex-col items-center bg-background">
@@ -47,35 +53,72 @@ export default async function DiaryDetailPage({
 
         {/* 내용 */}
         <main className="flex-1 overflow-y-auto px-5 pb-24 hide-scrollbar">
-          <section className="mb-6">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
-                기록
-              </h2>
-            </div>
-            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
-                {diary.content || "(내용 없음)"}
-              </p>
-            </div>
-          </section>
-
-          {diary.reflections?.length > 0 && diary.reflections.some((r: string) => r.trim()) && (
-            <>
-              <div className="mb-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs text-muted">느낀점 정리</span>
-                <div className="h-px flex-1 bg-border" />
+          {blocks ? (
+            blocks.map((block, i) => (
+              <div key={i} className="mb-8">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
+                    기록 {i + 1}
+                  </h2>
+                </div>
+                {block.content && (
+                  <div className="mb-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
+                      {block.content}
+                    </p>
+                  </div>
+                )}
+                {block.reflection && (
+                  <>
+                    <div className="mb-2 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-[11px] text-muted">느낀점</span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                      <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
+                        {block.reflection}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
-
-              <section>
+            ))
+          ) : (
+            <>
+              <section className="mb-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
+                    기록
+                  </h2>
+                </div>
                 <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                   <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
-                    {diary.reflections.join("\n")}
+                    {diary.content || "(내용 없음)"}
                   </p>
                 </div>
               </section>
+
+              {diary.reflections?.length > 0 &&
+                diary.reflections.some((r: string) => r.trim()) && (
+                  <>
+                    <div className="mb-6 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-xs text-muted">느낀점 정리</span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+
+                    <section>
+                      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                        <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
+                          {diary.reflections.join("\n")}
+                        </p>
+                      </div>
+                    </section>
+                  </>
+                )}
             </>
           )}
         </main>

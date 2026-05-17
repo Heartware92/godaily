@@ -7,6 +7,7 @@ create table diaries (
   title text,
   content text not null default '',
   reflections jsonb not null default '[]',
+  blocks jsonb,
   mood text,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null

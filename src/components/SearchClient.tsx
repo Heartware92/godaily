@@ -163,43 +163,38 @@ export default function SearchClient() {
                     href={`/diary/${r.diary.id}`}
                     className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
                   >
-                    <div className="mb-2 flex items-center gap-2">
-                      <p className="text-xs text-muted">
-                        {format(
-                          new Date(r.diary.created_at),
-                          "yyyy년 M월 d일 EEEE",
-                          { locale: ko }
-                        )}
-                      </p>
+                    <p className="mb-2 text-xs text-muted">
+                      {format(
+                        new Date(r.diary.created_at),
+                        "yyyy년 M월 d일 EEEE",
+                        { locale: ko }
+                      )}
+                    </p>
+
+                    <div className="space-y-2">
+                      {r.hits.map((hit, i) => {
+                        const isContent = hit.field === "content";
+                        const label = isContent ? "본문" : "느낀점";
+                        const numbered =
+                          hit.index !== null ? `${label} ${hit.index + 1}` : label;
+                        return (
+                          <div key={i}>
+                            <span
+                              className={`mr-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                isContent
+                                  ? "bg-primary/15 text-primary"
+                                  : "bg-blue-400/15 text-blue-400"
+                              }`}
+                            >
+                              {numbered}
+                            </span>
+                            <span className="text-[14px] leading-6 text-foreground">
+                              <Highlight text={hit.snippet} terms={r.terms} />
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
-
-                    {r.contentMatched && r.contentSnippet && (
-                      <div className="mb-2">
-                        <span className="mr-2 inline-block rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                          본문
-                        </span>
-                        <span className="text-[14px] leading-6 text-foreground">
-                          <Highlight
-                            text={r.contentSnippet}
-                            terms={r.terms}
-                          />
-                        </span>
-                      </div>
-                    )}
-
-                    {r.reflectionMatched && r.reflectionSnippet && (
-                      <div>
-                        <span className="mr-2 inline-block rounded-full bg-blue-400/15 px-2 py-0.5 text-[10px] font-semibold text-blue-400">
-                          느낀점
-                        </span>
-                        <span className="text-[14px] leading-6 text-foreground">
-                          <Highlight
-                            text={r.reflectionSnippet}
-                            terms={r.terms}
-                          />
-                        </span>
-                      </div>
-                    )}
                   </Link>
                 ))}
               </div>

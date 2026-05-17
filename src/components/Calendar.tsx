@@ -18,11 +18,37 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 
+interface DiaryBlock {
+  content: string;
+  reflection: string;
+}
+
 interface DiaryEntry {
   id: string;
   content: string;
   reflections: string[];
+  blocks: DiaryBlock[] | null;
   created_at: string;
+}
+
+function getPreview(d: DiaryEntry): { main: string; sub: string } {
+  if (Array.isArray(d.blocks) && d.blocks.length > 0) {
+    const first = d.blocks.find((b) => b.content?.trim() || b.reflection?.trim());
+    return {
+      main: first?.content?.trim() || first?.reflection?.trim() || "(내용 없음)",
+      sub:
+        d.blocks.length > 1
+          ? `기록 ${d.blocks.length}개`
+          : (first?.content?.trim() && first?.reflection?.trim()) || "",
+    };
+  }
+  return {
+    main: d.content || "(내용 없음)",
+    sub:
+      d.reflections?.length > 0 && d.reflections.some((r) => r.trim())
+        ? d.reflections.join("\n")
+        : "",
+  };
 }
 
 export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
@@ -190,25 +216,28 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
           </div>
         ) : (
           <div className="space-y-3">
-            {selectedDiaries.map((diary) => (
-              <Link
-                key={diary.id}
-                href={`/diary/${diary.id}`}
-                className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
-              >
-                <p className="line-clamp-3 text-[15px] leading-7 text-foreground">
-                  {diary.content || "(내용 없음)"}
-                </p>
-                {diary.reflections?.length > 0 && diary.reflections.some((r) => r.trim()) && (
-                  <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted">
-                    {diary.reflections.join("\n")}
+            {selectedDiaries.map((diary) => {
+              const preview = getPreview(diary);
+              return (
+                <Link
+                  key={diary.id}
+                  href={`/diary/${diary.id}`}
+                  className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
+                >
+                  <p className="line-clamp-3 text-[15px] leading-7 text-foreground">
+                    {preview.main}
                   </p>
-                )}
-                <p className="mt-3 text-xs text-muted">
-                  {format(new Date(diary.created_at), "a h:mm", { locale: ko })}
-                </p>
-              </Link>
-            ))}
+                  {preview.sub && (
+                    <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted">
+                      {preview.sub}
+                    </p>
+                  )}
+                  <p className="mt-3 text-xs text-muted">
+                    {format(new Date(diary.created_at), "a h:mm", { locale: ko })}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
