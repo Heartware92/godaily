@@ -20,26 +20,29 @@ create index diaries_created_at_idx on diaries(created_at desc);
 -- RLS 활성화
 alter table diaries enable row level security;
 
--- RLS 정책: 본인 데이터만 접근
+-- RLS 정책: 본인 데이터만 접근 (authenticated 역할 한정, 소유권 검증)
 create policy "Users can view own diaries"
-  on diaries for select
-  using (auth.uid() = user_id);
+  on diaries for select to authenticated
+  using ((select auth.uid()) = user_id);
 
 create policy "Users can insert own diaries"
-  on diaries for insert
-  with check (auth.uid() = user_id);
+  on diaries for insert to authenticated
+  with check ((select auth.uid()) = user_id);
 
 create policy "Users can update own diaries"
-  on diaries for update
-  using (auth.uid() = user_id);
+  on diaries for update to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
 
 create policy "Users can delete own diaries"
-  on diaries for delete
-  using (auth.uid() = user_id);
+  on diaries for delete to authenticated
+  using ((select auth.uid()) = user_id);
 
--- updated_at 자동 갱신 트리거
+-- updated_at 자동 갱신 트리거 (search_path 고정)
 create or replace function update_updated_at()
-returns trigger as $$
+returns trigger
+set search_path = ''
+as $$
 begin
   new.updated_at = now();
   return new;
