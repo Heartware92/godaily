@@ -11,13 +11,9 @@ export async function createDiary(
   blocks?: DiaryBlock[]
 ) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("로그인이 필요합니다.");
   const insertData: Record<string, unknown> = blocks
-    ? { user_id: user.id, content: "", reflections: [], blocks }
-    : { user_id: user.id, content, reflections };
+    ? { content: "", reflections: [], blocks }
+    : { content, reflections };
   if (date) {
     insertData.created_at = new Date(date + "T12:00:00").toISOString();
   }
