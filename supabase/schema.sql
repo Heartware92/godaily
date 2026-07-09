@@ -8,6 +8,8 @@ create table diaries (
   content text not null default '',
   reflections jsonb not null default '[]',
   blocks jsonb,
+  -- 'video': 영상 기록 (기존 양식), 'free': 자유 일기 (2026-07-10 추가)
+  entry_type text not null default 'video' check (entry_type in ('video','free')),
   mood text,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null
@@ -16,6 +18,7 @@ create table diaries (
 -- 인덱스
 create index diaries_user_id_idx on diaries(user_id);
 create index diaries_created_at_idx on diaries(created_at desc);
+create index diaries_entry_type_idx on diaries(entry_type);
 
 -- RLS 활성화
 alter table diaries enable row level security;

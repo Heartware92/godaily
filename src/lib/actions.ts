@@ -41,11 +41,40 @@ export async function updateDiary(
   revalidatePath(`/diary/${id}`);
 }
 
+export async function createFreeDiary(content: string, date?: string) {
+  const supabase = await createClient();
+  const insertData: Record<string, unknown> = {
+    content,
+    reflections: [],
+    entry_type: "free",
+  };
+  if (date) {
+    insertData.created_at = new Date(date + "T12:00:00").toISOString();
+  }
+  const { error } = await supabase.from("diaries").insert(insertData);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/journal");
+}
+
+export async function updateFreeDiary(id: string, content: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("diaries")
+    .update({ content })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/journal");
+  revalidatePath(`/diary/${id}`);
+}
+
 export async function deleteDiary(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("diaries").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/");
+  revalidatePath("/journal");
 }
 
 export async function getDiaries() {
@@ -53,6 +82,17 @@ export async function getDiaries() {
   const { data, error } = await supabase
     .from("diaries")
     .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function getFreeDiaries() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("diaries")
+    .select("id, content, created_at")
+    .eq("entry_type", "free")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data;
@@ -70,7 +110,7 @@ export async function getDiary(id: string) {
 }
 
 export interface SearchHit {
-  field: "content" | "reflection";
+  field: "content" | "reflection" | "free";
   index: number | null;
   snippet: string;
 }
@@ -79,6 +119,7 @@ export interface SearchMatch {
   diary: {
     id: string;
     created_at: string;
+    entry_type: "video" | "free";
   };
   hits: SearchHit[];
   terms: string[];
@@ -120,7 +161,7 @@ export async function searchDiaries(query: string): Promise<SearchMatch[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("diaries")
-    .select("id, content, reflections, blocks, created_at")
+    .select("id, content, reflections, blocks, entry_type, created_at")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
 
@@ -132,7 +173,13 @@ export async function searchDiaries(query: string): Promise<SearchMatch[]> {
       ? (row.blocks as DiaryBlock[])
       : null;
 
-    if (blocks && blocks.length > 0) {
+    if (row.entry_type === "free") {
+      const content: string = row.content ?? "";
+      if (matchesAll(content, terms)) {
+        const snip = makeSnippet(content, terms);
+        if (snip) hits.push({ field: "free", index: null, snippet: snip });
+      }
+    } else if (blocks && blocks.length > 0) {
       blocks.forEach((b, i) => {
         const c = typeof b?.content === "string" ? b.content : "";
         const r = typeof b?.reflection === "string" ? b.reflection : "";
@@ -166,7 +213,11 @@ export async function searchDiaries(query: string): Promise<SearchMatch[]> {
     if (hits.length === 0) continue;
 
     results.push({
-      diary: { id: row.id, created_at: row.created_at },
+      diary: {
+        id: row.id,
+        created_at: row.created_at,
+        entry_type: row.entry_type === "free" ? "free" : "video",
+      },
       hits,
       terms,
     });

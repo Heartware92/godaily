@@ -28,10 +28,14 @@ interface DiaryEntry {
   content: string;
   reflections: string[];
   blocks: DiaryBlock[] | null;
+  entry_type: "video" | "free";
   created_at: string;
 }
 
 function getPreview(d: DiaryEntry): { main: string; sub: string } {
+  if (d.entry_type === "free") {
+    return { main: d.content || "(내용 없음)", sub: "" };
+  }
   if (Array.isArray(d.blocks) && d.blocks.length > 0) {
     const first = d.blocks.find((b) => b.content?.trim() || b.reflection?.trim());
     return {
@@ -187,27 +191,52 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
           <p className="text-xs font-semibold uppercase tracking-widest text-muted">
             {format(selectedDate, "M월 d일 EEEE", { locale: ko })}
           </p>
-          <button
-            onClick={() =>
-              router.push(`/write?date=${format(selectedDate, "yyyy-MM-dd")}`)
-            }
-            className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-background transition-transform active:scale-95"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex gap-2">
+            <button
+              onClick={() =>
+                router.push(
+                  `/write?date=${format(selectedDate, "yyyy-MM-dd")}&type=free`
+                )
+              }
+              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-background transition-transform active:scale-95"
             >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            일기 쓰기
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+              일기
+            </button>
+            <button
+              onClick={() =>
+                router.push(`/write?date=${format(selectedDate, "yyyy-MM-dd")}`)
+              }
+              className="flex items-center gap-1 rounded-full border border-primary bg-card px-3 py-1.5 text-xs font-medium text-primary transition-transform active:scale-95"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polygon points="23 7 16 12 23 17 23 7" />
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+              </svg>
+              영상 기록
+            </button>
+          </div>
         </div>
 
         {selectedDiaries.length === 0 ? (
@@ -224,6 +253,15 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
                   href={`/diary/${diary.id}`}
                   className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
                 >
+                  <span
+                    className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      diary.entry_type === "free"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-blue-400/15 text-blue-400"
+                    }`}
+                  >
+                    {diary.entry_type === "free" ? "일기" : "영상 기록"}
+                  </span>
                   <p className="line-clamp-3 text-[15px] leading-7 text-foreground">
                     {preview.main}
                   </p>

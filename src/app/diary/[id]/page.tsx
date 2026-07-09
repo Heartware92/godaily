@@ -53,7 +53,21 @@ export default async function DiaryDetailPage({
 
         {/* 내용 */}
         <main className="flex-1 overflow-y-auto px-5 pb-24 hide-scrollbar">
-          {blocks ? (
+          {diary.entry_type === "free" ? (
+            <section>
+              <div className="mb-3 flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
+                  일기
+                </h2>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">
+                  {diary.content || "(내용 없음)"}
+                </p>
+              </div>
+            </section>
+          ) : blocks ? (
             blocks.map((block, i) => (
               <div key={i} className="mb-8">
                 <div className="mb-3 flex items-center gap-2">

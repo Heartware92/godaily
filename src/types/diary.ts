@@ -3,6 +3,8 @@ export interface DiaryBlock {
   reflection: string
 }
 
+export type EntryType = 'video' | 'free'
+
 export interface Diary {
   id: string
   user_id: string
@@ -10,6 +12,7 @@ export interface Diary {
   content: string
   reflections: string[]
   blocks: DiaryBlock[] | null
+  entry_type: EntryType
   mood: string | null
   created_at: string
   updated_at: string

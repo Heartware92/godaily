@@ -173,15 +173,20 @@ export default function SearchClient() {
 
                     <div className="space-y-2">
                       {r.hits.map((hit, i) => {
+                        const isFree = hit.field === "free";
                         const isContent = hit.field === "content";
-                        const label = isContent ? "본문" : "느낀점";
+                        const label = isFree
+                          ? "일기"
+                          : isContent
+                            ? "본문"
+                            : "느낀점";
                         const numbered =
                           hit.index !== null ? `${label} ${hit.index + 1}` : label;
                         return (
                           <div key={i}>
                             <span
                               className={`mr-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                                isContent
+                                isFree || isContent
                                   ? "bg-primary/15 text-primary"
                                   : "bg-blue-400/15 text-blue-400"
                               }`}
