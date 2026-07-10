@@ -10,6 +10,8 @@ create table diaries (
   blocks jsonb,
   -- 'video': 영상 기록 (기존 양식), 'free': 자유 일기 (2026-07-10 추가)
   entry_type text not null default 'video' check (entry_type in ('video','free')),
+  -- 자유 일기용 낮 시간 메모 (2026-07-10 추가): 틈틈이 기록 → 자기 전 content에 일기 정리
+  memo text not null default '',
   mood text,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null

@@ -13,6 +13,7 @@ export interface Diary {
   reflections: string[]
   blocks: DiaryBlock[] | null
   entry_type: EntryType
+  memo: string
   mood: string | null
   created_at: string
   updated_at: string

@@ -41,10 +41,15 @@ export async function updateDiary(
   revalidatePath(`/diary/${id}`);
 }
 
-export async function createFreeDiary(content: string, date?: string) {
+export async function createFreeDiary(
+  content: string,
+  memo: string,
+  date?: string
+) {
   const supabase = await createClient();
   const insertData: Record<string, unknown> = {
     content,
+    memo,
     reflections: [],
     entry_type: "free",
   };
@@ -57,11 +62,11 @@ export async function createFreeDiary(content: string, date?: string) {
   revalidatePath("/journal");
 }
 
-export async function updateFreeDiary(id: string, content: string) {
+export async function updateFreeDiary(id: string, content: string, memo: string) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("diaries")
-    .update({ content })
+    .update({ content, memo })
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -91,7 +96,7 @@ export async function getFreeDiaries() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("diaries")
-    .select("id, content, created_at")
+    .select("id, content, memo, created_at")
     .eq("entry_type", "free")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
@@ -110,7 +115,7 @@ export async function getDiary(id: string) {
 }
 
 export interface SearchHit {
-  field: "content" | "reflection" | "free";
+  field: "content" | "reflection" | "free" | "memo";
   index: number | null;
   snippet: string;
 }
@@ -161,7 +166,7 @@ export async function searchDiaries(query: string): Promise<SearchMatch[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("diaries")
-    .select("id, content, reflections, blocks, entry_type, created_at")
+    .select("id, content, reflections, blocks, entry_type, memo, created_at")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
 
@@ -175,9 +180,14 @@ export async function searchDiaries(query: string): Promise<SearchMatch[]> {
 
     if (row.entry_type === "free") {
       const content: string = row.content ?? "";
+      const memo: string = row.memo ?? "";
       if (matchesAll(content, terms)) {
         const snip = makeSnippet(content, terms);
         if (snip) hits.push({ field: "free", index: null, snippet: snip });
+      }
+      if (matchesAll(memo, terms)) {
+        const snip = makeSnippet(memo, terms);
+        if (snip) hits.push({ field: "memo", index: null, snippet: snip });
       }
     } else if (blocks && blocks.length > 0) {
       blocks.forEach((b, i) => {

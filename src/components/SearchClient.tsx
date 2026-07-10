@@ -174,12 +174,15 @@ export default function SearchClient() {
                     <div className="space-y-2">
                       {r.hits.map((hit, i) => {
                         const isFree = hit.field === "free";
+                        const isMemo = hit.field === "memo";
                         const isContent = hit.field === "content";
                         const label = isFree
                           ? "일기"
-                          : isContent
-                            ? "본문"
-                            : "느낀점";
+                          : isMemo
+                            ? "메모"
+                            : isContent
+                              ? "본문"
+                              : "느낀점";
                         const numbered =
                           hit.index !== null ? `${label} ${hit.index + 1}` : label;
                         return (

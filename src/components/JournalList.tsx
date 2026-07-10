@@ -10,6 +10,7 @@ import { deleteDiary } from "@/lib/actions";
 interface JournalEntry {
   id: string;
   content: string;
+  memo: string;
   created_at: string;
 }
 
@@ -55,9 +56,10 @@ export default function JournalList({ diaries }: { diaries: JournalEntry[] }) {
 
   const filtered = useMemo(() => {
     if (terms.length === 0) return diaries;
-    return diaries.filter((d) =>
-      terms.every((t) => new RegExp(escapeRegex(t), "i").test(d.content))
-    );
+    return diaries.filter((d) => {
+      const text = `${d.content}\n${d.memo}`;
+      return terms.every((t) => new RegExp(escapeRegex(t), "i").test(text));
+    });
   }, [diaries, terms]);
 
   const grouped = useMemo(() => {
@@ -157,8 +159,20 @@ export default function JournalList({ diaries }: { diaries: JournalEntry[] }) {
                   >
                     <Link href={`/diary/${diary.id}`} className="block">
                       <p className="line-clamp-4 whitespace-pre-wrap text-[15px] leading-7 text-foreground">
-                        <Highlight text={diary.content} terms={terms} />
+                        <Highlight
+                          text={
+                            diary.content.trim() ||
+                            diary.memo.trim() ||
+                            "(내용 없음)"
+                          }
+                          terms={terms}
+                        />
                       </p>
+                      {diary.content.trim() && diary.memo.trim() && (
+                        <p className="mt-3 line-clamp-2 whitespace-pre-wrap text-xs leading-5 text-muted">
+                          <Highlight text={diary.memo} terms={terms} />
+                        </p>
+                      )}
                     </Link>
                     <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                       <span className="text-xs text-muted">

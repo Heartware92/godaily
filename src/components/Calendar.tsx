@@ -29,12 +29,18 @@ interface DiaryEntry {
   reflections: string[];
   blocks: DiaryBlock[] | null;
   entry_type: "video" | "free";
+  memo: string;
   created_at: string;
 }
 
 function getPreview(d: DiaryEntry): { main: string; sub: string } {
   if (d.entry_type === "free") {
-    return { main: d.content || "(내용 없음)", sub: "" };
+    const content = d.content?.trim();
+    const memo = d.memo?.trim();
+    return {
+      main: content || memo || "(내용 없음)",
+      sub: content && memo ? memo : "",
+    };
   }
   if (Array.isArray(d.blocks) && d.blocks.length > 0) {
     const first = d.blocks.find((b) => b.content?.trim() || b.reflection?.trim());
