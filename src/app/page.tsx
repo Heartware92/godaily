@@ -11,10 +11,7 @@ export default async function Home() {
     <div className="flex h-full flex-col items-center bg-background">
       <div className="flex w-full max-w-[430px] flex-1 flex-col">
         {/* 헤더 */}
-        <header className="flex items-center justify-between px-5 pt-12 pb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Godaily
-          </h1>
+        <header className="flex items-center justify-end px-5 pt-12 pb-4">
           <div className="flex gap-2">
             <Link
               href="/journal"
