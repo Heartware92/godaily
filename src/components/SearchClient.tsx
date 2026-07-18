@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { searchDiaries, type SearchMatch } from "@/lib/actions";
@@ -39,7 +38,6 @@ function Highlight({ text, terms }: { text: string; terms: string[] }) {
 }
 
 export default function SearchClient() {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchMatch[]>([]);
   const [isPending, startTransition] = useTransition();
@@ -68,29 +66,10 @@ export default function SearchClient() {
   }, [query]);
 
   return (
-    <div className="flex h-full flex-col items-center bg-background">
-      <div className="flex w-full max-w-[430px] flex-1 flex-col">
-        {/* 헤더 */}
-        <header className="flex items-center gap-2 px-5 pt-12 pb-4">
-          <button
-            onClick={() => router.back()}
-            aria-label="뒤로"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-foreground"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+    <main className="mx-auto max-w-2xl px-5 py-6 md:py-10">
+      <div>
+        {/* 검색 입력 */}
+        <div className="mb-6">
           <div className="relative flex-1">
             <svg
               width="16"
@@ -135,10 +114,10 @@ export default function SearchClient() {
               </button>
             )}
           </div>
-        </header>
+        </div>
 
         {/* 결과 */}
-        <main className="flex-1 overflow-y-auto px-5 pb-8 hide-scrollbar">
+        <div>
           {!query.trim() && (
             <p className="mt-10 text-center text-sm text-muted">
               본문과 느낀점에서 검색해요
@@ -208,8 +187,8 @@ export default function SearchClient() {
               </div>
             </>
           )}
-        </main>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

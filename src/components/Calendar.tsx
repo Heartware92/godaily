@@ -85,11 +85,11 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
   const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div>
+    <div className="lg:grid lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:items-start lg:gap-8">
       {/* 캘린더 */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm md:p-5">
         {/* 월 네비게이션 */}
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between md:mb-4">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
             className="flex h-8 w-8 items-center justify-center rounded-full transition-colors active:bg-background"
@@ -108,7 +108,7 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <h2 className="text-sm font-semibold text-foreground">
+          <h2 className="text-sm font-semibold text-foreground md:text-base">
             {format(currentMonth, "yyyy년 M월", { locale: ko })}
           </h2>
           <button
@@ -136,7 +136,7 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
           {weekDays.map((day, i) => (
             <div
               key={day}
-              className={`py-1 text-center text-[11px] font-medium ${
+              className={`py-1 text-center text-[11px] font-medium md:text-xs ${
                 i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-muted"
               }`}
             >
@@ -159,12 +159,12 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
               <button
                 key={dateStr}
                 onClick={() => setSelectedDate(day)}
-                className={`relative flex flex-col items-center py-1.5 transition-colors ${
+                className={`relative flex flex-col items-center py-1.5 transition-colors md:py-2 ${
                   !isCurrentMonth ? "opacity-20" : ""
                 }`}
               >
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-[13px] ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-[13px] md:h-10 md:w-10 md:text-[15px] ${
                     isSelected
                       ? "bg-primary font-bold text-background"
                       : today
@@ -192,9 +192,9 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
       </div>
 
       {/* 선택된 날짜 */}
-      <div className="mt-5">
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+      <div className="mt-6 lg:mt-0">
+        <div className="mb-3 flex items-center justify-between md:mb-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted md:text-sm">
             {format(selectedDate, "M월 d일 EEEE", { locale: ko })}
           </p>
           <div className="flex gap-2">
