@@ -49,7 +49,7 @@ export default function FreeDiaryForm({ diary, date }: FreeDiaryFormProps) {
 
   return (
     <>
-      <main className="animate-fade-in-up mx-auto max-w-5xl px-5 py-6 pb-28 md:py-10">
+      <main className="animate-fade-in-up mx-auto max-w-5xl px-5 py-6 pb-40 md:py-10 md:pb-36">
         <div className="mb-6">
           <h1 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">
             {diary ? "일기 수정" : "일기"}
@@ -98,7 +98,7 @@ export default function FreeDiaryForm({ diary, date }: FreeDiaryFormProps) {
       </main>
 
       {/* 하단 고정 저장 바 */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 px-5 py-3.5 backdrop-blur-xl">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 px-5 pt-3.5 pb-[calc(0.875rem+env(safe-area-inset-bottom))] backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3">
           <button
             onClick={() => router.back()}

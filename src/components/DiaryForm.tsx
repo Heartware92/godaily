@@ -85,7 +85,7 @@ function SaveBar({
   maxWidth?: string;
 }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 px-5 py-3.5 backdrop-blur-xl">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/80 px-5 pt-3.5 pb-[calc(0.875rem+env(safe-area-inset-bottom))] backdrop-blur-xl">
       <div className={`mx-auto flex ${maxWidth} items-center gap-3`}>
         <button
           onClick={onBack}
@@ -161,7 +161,7 @@ function LegacyForm({
 
   return (
     <>
-      <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 pb-28 md:py-10">
+      <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 pb-40 md:py-10 md:pb-36">
         <FormHeader
           title={diary ? "영상 기록 수정" : "영상 기록"}
           dateLabel={headerDateLabel}
@@ -272,7 +272,7 @@ function BlocksForm({
 
   return (
     <>
-      <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 pb-28 md:py-10">
+      <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 pb-40 md:py-10 md:pb-36">
         <FormHeader
           title={isEdit ? "영상 기록 수정" : "영상 기록"}
           dateLabel={headerDateLabel}
