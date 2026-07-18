@@ -96,7 +96,7 @@ function SaveBar({
         <button
           onClick={onSave}
           disabled={saving || disabled}
-          className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-background transition-transform active:scale-[0.99] disabled:opacity-50 md:flex-none md:ml-auto md:min-w-[200px]"
+          className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-brand-foreground shadow-sm transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 md:ml-auto md:min-w-[200px] md:flex-none"
         >
           {saving ? "저장 중..." : saveLabel}
         </button>
@@ -161,7 +161,7 @@ function LegacyForm({
 
   return (
     <>
-      <main className="mx-auto max-w-2xl px-5 py-6 pb-28 md:py-10">
+      <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 pb-28 md:py-10">
         <FormHeader
           title={diary ? "영상 기록 수정" : "영상 기록"}
           dateLabel={headerDateLabel}
@@ -272,7 +272,7 @@ function BlocksForm({
 
   return (
     <>
-      <main className="mx-auto max-w-2xl px-5 py-6 pb-28 md:py-10">
+      <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 pb-28 md:py-10">
         <FormHeader
           title={isEdit ? "영상 기록 수정" : "영상 기록"}
           dateLabel={headerDateLabel}

@@ -8,14 +8,14 @@ export default async function JournalPage() {
   const diaries = await getFreeDiaries();
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-6 md:py-10">
+    <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 md:py-10">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">
           일기
         </h1>
         <Link
           href="/write?type=free"
-          className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-background transition-transform active:scale-95"
+          className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground shadow-sm transition-all hover:opacity-90 active:scale-95"
         >
           <svg
             width="15"

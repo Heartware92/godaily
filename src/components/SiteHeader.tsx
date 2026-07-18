@@ -34,8 +34,8 @@ export default function SiteHeader() {
                 aria-current={active ? "page" : undefined}
                 className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors md:px-4 ${
                   active
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted active:bg-card"
+                    ? "bg-brand-soft font-semibold text-brand"
+                    : "text-muted hover:text-foreground active:bg-card"
                 }`}
               >
                 {item.label}

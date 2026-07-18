@@ -85,14 +85,14 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
   const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+    <div className="animate-fade-in-up w-full lg:grid lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:items-start lg:gap-10">
       {/* 캘린더 */}
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm md:p-5">
+      <div className="rounded-3xl border border-border bg-card p-4 shadow-sm md:p-6">
         {/* 월 네비게이션 */}
         <div className="mb-3 flex items-center justify-between md:mb-4">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors active:bg-background"
+            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-background active:bg-background md:h-9 md:w-9"
           >
             <svg
               width="18"
@@ -113,7 +113,7 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
           </h2>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors active:bg-background"
+            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-background active:bg-background md:h-9 md:w-9"
           >
             <svg
               width="18"
@@ -146,7 +146,10 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
         </div>
 
         {/* 날짜 그리드 */}
-        <div className="grid grid-cols-7">
+        <div
+          key={format(currentMonth, "yyyy-MM")}
+          className="animate-fade-in grid grid-cols-7"
+        >
           {days.map((day) => {
             const dateStr = format(day, "yyyy-MM-dd");
             const hasDiary = diaryDates.has(dateStr);
@@ -164,24 +167,24 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
                 }`}
               >
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-[13px] md:h-10 md:w-10 md:text-[15px] ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-[13px] transition-all duration-200 md:h-11 md:w-11 md:text-[15px] ${
                     isSelected
-                      ? "bg-primary font-bold text-background"
+                      ? "animate-pop bg-brand font-bold text-brand-foreground shadow-md shadow-brand/30"
                       : today
-                        ? "font-bold text-primary"
+                        ? "font-bold text-brand ring-1 ring-inset ring-brand/40"
                         : dayOfWeek === 0
-                          ? "text-red-400"
+                          ? "text-red-400 hover:bg-background"
                           : dayOfWeek === 6
-                            ? "text-blue-400"
-                            : "text-foreground"
+                            ? "text-blue-400 hover:bg-background"
+                            : "text-foreground hover:bg-background"
                   }`}
                 >
                   {format(day, "d")}
                 </div>
                 {hasDiary && isCurrentMonth && (
                   <div
-                    className={`absolute bottom-0.5 h-1 w-1 rounded-full ${
-                      isSelected ? "bg-background" : "bg-primary"
+                    className={`absolute bottom-0 h-1 w-1 rounded-full transition-colors ${
+                      isSelected ? "bg-brand" : "bg-brand/60"
                     }`}
                   />
                 )}
@@ -204,7 +207,7 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
                   `/write?date=${format(selectedDate, "yyyy-MM-dd")}&type=free`
                 )
               }
-              className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-background transition-transform active:scale-95"
+              className="flex items-center gap-1 rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-brand-foreground shadow-sm transition-all hover:opacity-90 active:scale-95"
             >
               <svg
                 width="14"
@@ -225,7 +228,7 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
               onClick={() =>
                 router.push(`/write?date=${format(selectedDate, "yyyy-MM-dd")}`)
               }
-              className="flex items-center gap-1 rounded-full border border-primary bg-card px-3 py-1.5 text-xs font-medium text-primary transition-transform active:scale-95"
+              className="flex items-center gap-1 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:border-foreground/30 active:scale-95"
             >
               <svg
                 width="14"
@@ -246,23 +249,41 @@ export default function Calendar({ diaries }: { diaries: DiaryEntry[] }) {
         </div>
 
         {selectedDiaries.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-8 text-center">
-            <p className="text-sm text-muted">이 날의 일기가 없어요</p>
+          <div className="flex min-h-[180px] flex-col items-center justify-center rounded-2xl border border-dashed border-border p-8 text-center lg:min-h-[360px]">
+            <svg
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mb-3 text-muted/50"
+            >
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            <p className="text-sm text-muted">이 날의 기록이 없어요</p>
+            <p className="mt-1 text-xs text-muted/70">
+              위 버튼으로 새 기록을 남겨보세요
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {selectedDiaries.map((diary) => {
+            {selectedDiaries.map((diary, i) => {
               const preview = getPreview(diary);
               return (
                 <Link
                   key={diary.id}
                   href={`/diary/${diary.id}`}
-                  className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                  className="stagger block rounded-2xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md active:bg-background"
                 >
                   <span
                     className={`mb-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                       diary.entry_type === "free"
-                        ? "bg-primary/15 text-primary"
+                        ? "bg-brand-soft text-brand"
                         : "bg-blue-400/15 text-blue-400"
                     }`}
                   >

@@ -66,7 +66,7 @@ export default function SearchClient() {
   }, [query]);
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-6 md:py-10">
+    <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 md:py-10">
       <div>
         {/* 검색 입력 */}
         <div className="mb-6">
@@ -136,11 +136,12 @@ export default function SearchClient() {
                 {isPending ? "검색 중…" : `${results.length}건`}
               </p>
               <div className="space-y-3">
-                {results.map((r) => (
+                {results.map((r, i) => (
                   <Link
                     key={r.diary.id}
                     href={`/diary/${r.diary.id}`}
-                    className="block rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors active:bg-background"
+                    style={{ animationDelay: `${i * 50}ms` }}
+                    className="stagger block rounded-2xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md active:bg-background"
                   >
                     <p className="mb-2 text-xs text-muted">
                       {format(
@@ -169,7 +170,7 @@ export default function SearchClient() {
                             <span
                               className={`mr-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                                 isFree || isContent
-                                  ? "bg-primary/15 text-primary"
+                                  ? "bg-brand-soft text-brand"
                                   : "bg-blue-400/15 text-blue-400"
                               }`}
                             >

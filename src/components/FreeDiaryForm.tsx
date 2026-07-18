@@ -49,7 +49,7 @@ export default function FreeDiaryForm({ diary, date }: FreeDiaryFormProps) {
 
   return (
     <>
-      <main className="mx-auto max-w-5xl px-5 py-6 pb-28 md:py-10">
+      <main className="animate-fade-in-up mx-auto max-w-5xl px-5 py-6 pb-28 md:py-10">
         <div className="mb-6">
           <h1 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">
             {diary ? "일기 수정" : "일기"}
@@ -109,7 +109,7 @@ export default function FreeDiaryForm({ diary, date }: FreeDiaryFormProps) {
           <button
             onClick={handleSave}
             disabled={saving || (!content.trim() && !memo.trim())}
-            className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-background transition-transform active:scale-[0.99] disabled:opacity-50 md:ml-auto md:min-w-[200px] md:flex-none"
+            className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-brand-foreground shadow-sm transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50 md:ml-auto md:min-w-[200px] md:flex-none"
           >
             {saving ? "저장 중..." : diary ? "수정 완료" : "저장하기"}
           </button>

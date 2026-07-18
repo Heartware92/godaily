@@ -152,10 +152,11 @@ export default function JournalList({ diaries }: { diaries: JournalEntry[] }) {
                 })}
               </p>
               <div className="space-y-3">
-                {items.map((diary) => (
+                {items.map((diary, i) => (
                   <div
                     key={diary.id}
-                    className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+                    style={{ animationDelay: `${i * 50}ms` }}
+                    className="stagger rounded-2xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md"
                   >
                     <Link href={`/diary/${diary.id}`} className="block">
                       <p className="line-clamp-4 whitespace-pre-wrap text-[15px] leading-7 text-foreground">

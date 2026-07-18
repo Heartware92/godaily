@@ -21,14 +21,14 @@ export default async function DiaryDetailPage({
       : null;
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-6 md:py-10">
+    <main className="animate-fade-in-up mx-auto max-w-2xl px-5 py-6 md:py-10">
       {/* 상단: 날짜 + 수정 */}
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
           <span
             className={`mb-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
               diary.entry_type === "free"
-                ? "bg-primary/15 text-primary"
+                ? "bg-brand-soft text-brand"
                 : "bg-blue-400/15 text-blue-400"
             }`}
           >
@@ -42,7 +42,7 @@ export default async function DiaryDetailPage({
         </div>
         <Link
           href={`/diary/${id}/edit`}
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors active:bg-background"
+          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-foreground/30 active:bg-background"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
